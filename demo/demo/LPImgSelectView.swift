@@ -18,6 +18,7 @@ class LPImgSelectView: UIView {
     var currentImgScro:LPImgScrollView!;
     var lastImgScro:LPImgScrollView!;
     var titleLab:UILabel!;
+    var isToWindow:Bool = false;
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder);
@@ -26,17 +27,27 @@ class LPImgSelectView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame);
         self.backgroundColor = UIColor.black;
+        self.clipsToBounds = true;
     }
     
-    public static func show(imgArr:[Any?],selectCount:Int)->LPImgSelectView {
+    public static func showToView(imgArr:[Any?], selectCount:Int, toView:UIView)->LPImgSelectView {
         let imgView = LPImgSelectView.init(frame: CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.size.width , height:  UIScreen.main.bounds.size.height));
         imgView.imgArr = imgArr;
         imgView.createSubView();
         imgView.setSelectCount(count: selectCount);
+        toView.addSubview(imgView);
+        return imgView;
+    }
+    
+    public static func showToWindow(imgArr:[Any?],selectCount:Int)->LPImgSelectView {
+        let imgView = LPImgSelectView.init(frame: CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.size.width , height:  UIScreen.main.bounds.size.height));
+        imgView.imgArr = imgArr;
+        imgView.createSubView();
+        imgView.setSelectCount(count: selectCount);
+        imgView.isToWindow = true;
         imgView.alpha = 0;
         let rootVC = UIApplication.shared.delegate as! AppDelegate
         rootVC.window?.addSubview(imgView)
-//        UIApplication.shared.keyWindow?.addSubview(imgView);
         UIView.animate(withDuration: 0.3, animations: {
             imgView.alpha = 1;
         }) { (_) in
@@ -83,7 +94,9 @@ class LPImgSelectView: UIView {
             }
             
             s.dismissCb = {() in
-                self.disMiss();
+                if self.isToWindow {
+                    self.disMiss();
+                }
             }
         }
         
